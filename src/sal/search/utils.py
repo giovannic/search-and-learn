@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import List, Any, TypedDict
 import copy
 import logging
 from dataclasses import dataclass
@@ -156,3 +157,9 @@ def generate_k_steps(
         outputs.append(beam_result)
 
     return outputs
+
+class SearchResponse(TypedDict):
+    pred: List[Any]
+    completions: List[List[str]]
+    completion_tokens: List[List[int]]
+    scores: List[List[float]]
