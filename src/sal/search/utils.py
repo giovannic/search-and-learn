@@ -59,13 +59,12 @@ class Beam:
     next_texts: list[str] | None
     lookahead_texts: list[str] | None
     stop_reasons: list[str | None] | None
-    best_scores: list[float]  # the PRM scores
     all_scores: list[list[float]]  # all PRM scores
-    previous_text: str | None
-    pruned: False
     history: list[str]
     completed: bool = False
     completion_tokens: int = 0
+    prompt_tokens: int = 0
+    pruned: bool = False
 
 
 @dataclass
@@ -76,6 +75,8 @@ class GenResult:
     first_step_stop_reason: str
     lookahead_text: str
     stop_reason: str | None
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
 
 
 def generate_k_steps(
@@ -115,6 +116,9 @@ def generate_k_steps(
         ]
         llm_outputs = llm.generate(gen_prompts, gen_sampling_params, use_tqdm=False)
         for gen_result, output in zip(current_gen, llm_outputs):
+            if output.prompt_token_ids is not None:
+                gen_result.prompt_tokens = len(output.prompt_token_ids)
+            gen_result.completion_tokens = len(output.outputs[0].token_ids)
             gen_text = output.outputs[0].text
             if i == 0:
                 gen_result.first_step_text = gen_text
@@ -148,9 +152,7 @@ def generate_k_steps(
             next_texts=next_texts,
             lookahead_texts=lookahead_texts,
             stop_reasons=stop_reasons,
-            best_scores=[0.0],
             all_scores=[],
-            previous_text=None,
             pruned=False,
             history=[],
         )

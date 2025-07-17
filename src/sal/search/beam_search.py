@@ -53,9 +53,7 @@ def _beam_search(batch_of_prompts, config: Config, llm: LLM, prm: PRM) -> list[B
                     completed=False,  # New flag to track completion
                     stop_reasons=None,
                     history=[],
-                    best_scores=[],
                     all_scores=[],
-                    previous_text=None,
                     completion_tokens=0,
                 )
             )
@@ -140,7 +138,7 @@ def _beam_search(batch_of_prompts, config: Config, llm: LLM, prm: PRM) -> list[B
         ]
 
         for beam, score in zip(active_beams, scores, strict=True):
-            beam.all_scores = score[0]
+            beam.all_scores.append(score[0])
 
         # Now filter active_beams and agg_scores for beams that are completed
         agg_scores = [
